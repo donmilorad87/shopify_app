@@ -46,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     session: session,
   });
 
-  console.log(session, admin,'88890');
+  /* console.log(session, admin,'88890');
   
   const response = await admin.graphql(
     `#graphql
@@ -77,7 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     "read_content,read_files,read_products,read_script_tags,read_themes,write_content,write_files,write_products,write_script_tags,write_themes";
   let url = `https://${shopInfo.data[0].myshopify_domain}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=${appUrl}/api/auth/callback`;
   console.log(url, '_____________3_________');
-/*   await fetch(url, {
+  await fetch(url, {
     "credentials": "include",
     "method": "GET",
     "mode": "cors"
@@ -296,7 +296,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const asset = new admin.rest.resources.Asset({
           session: session,
         });
-        console.log(admin, session, theme, "657422233");
+        console.log(admin, session, theme, '________1_______');
 
         asset.theme_id = theme.id;
 
