@@ -122,7 +122,7 @@ export async function action({ request }: ActionFunctionArgs) {
   let ocambaHoodSettingsPayload: any = await request.formData();
   let ocambaHoodSettings = Object.fromEntries(ocambaHoodSettingsPayload);
 
-  /* if (ocambaHoodSettings.tag === "") {
+  if (ocambaHoodSettings.tag === "") {
     return json({
       message: "Tag can not be empty",
     });
@@ -256,8 +256,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
                       asset.theme_id = theme.id;
 
-                      asset.key = "assets/bs.js";
-                      asset.value = 'console.log("svi")';
+                      asset.key = "assets/sw.js";
+                      asset.value = 'importScripts("https://cdn.ocmhood.com/sdk/osw.js");';
                       console.log(asset);
                       try {
                         await asset.save({
@@ -285,40 +285,14 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
     return json(ocambaHoodSettings) ?? null;
-  } */
+  }
 
-  const { admin, session } = await authenticate.admin(request);
-  await admin.rest.resources.Theme.all({
-    session: session,
-  }).then((response) => {
-    response.data.forEach(async (theme) => {
-      if (theme.role === "main") {
-        const asset = new admin.rest.resources.Asset({
-          session: session,
-        });
-        console.log(admin, session, theme, '________1_______');
 
-        asset.theme_id = theme.id;
-
-        asset.key = "assets/bs.js";
-        asset.value = 'console.log("svi")';
-        console.log(asset);
-        try {
-          await asset.save({
-            update: true,
-          });
-          console.log("gone ok");
-        } catch (error) {
-          console.log("gone bad", error);
-        }
-      }
-    });
-  });
 
   return json(ocambaHoodSettings) ?? null;
 }
 
-/* function fetchData(url: string) {
+function fetchData(url: string) {
   return new Promise((resolve, reject) => {
     fetch(url)
       .then((response) => {
@@ -328,7 +302,7 @@ export async function action({ request }: ActionFunctionArgs) {
         reject(error);
       });
   });
-} */
+}
 
 let validationMesage: {
   message: string;

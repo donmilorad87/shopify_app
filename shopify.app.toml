@@ -3,7 +3,7 @@
 client_id = "6ddda1133d2a189b419263862ab1b4d0"
 name = "Ocamba Hood"
 handle = "ocamba-hood"
-application_url = "https://buses-cisco-miss-w.trycloudflare.com"
+application_url = "https://scotland-focusing-trends-amplifier.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_files,read_products,read_script_tags,read_themes,wri
 
 [auth]
 redirect_urls = [
-  "https://buses-cisco-miss-w.trycloudflare.com/auth/callback",
-  "https://buses-cisco-miss-w.trycloudflare.com/auth/shopify/callback",
-  "https://buses-cisco-miss-w.trycloudflare.com/api/auth/callback"
+  "https://scotland-focusing-trends-amplifier.trycloudflare.com/auth/callback",
+  "https://scotland-focusing-trends-amplifier.trycloudflare.com/auth/shopify/callback",
+  "https://scotland-focusing-trends-amplifier.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
