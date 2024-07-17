@@ -7,8 +7,7 @@ import {
   InlineGrid,
   TextField,
   Checkbox,
-  Button,
-  Toast,
+  Button
 } from "@shopify/polaris";
 
 import { TitleBar } from "@shopify/app-bridge-react";
@@ -16,12 +15,11 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { useLoaderData, Form, useActionData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 //import prisma db
 import db from "../db.server";
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { Asset } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-07/asset";
 
 type settingsObject = {
   id?: string;
