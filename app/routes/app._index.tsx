@@ -21,21 +21,17 @@ import { useEffect, useState } from "react";
 import db from "../db.server";
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import fs from 'fs';
-import path from 'path';
-import toml from 'toml';
+import { Asset } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-07/asset";
 
-export function readShopifyAppToml() {
-  const filePath = path.resolve('shopify.app.toml');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const config = toml.parse(fileContent);
-  return config;
-}
 type settingsObject = {
   id?: string;
   tag: string;
   active: boolean;
   message?: string;
+};
+
+type validationMesageType = {
+  message: string;
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -46,47 +42,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     session: session,
   });
 
-  /* console.log(session, admin,'88890');
-  
-  const response = await admin.graphql(
-    `#graphql
-    query {
-      app {
-          installation {
-            id
-            launchUrl
-          }
-          id
-          title
-          apiKey
-          appStoreAppUrl
-          appStoreDeveloperUrl
-          description
-          developerName
-        }
-      
-    }`,
-  );
-
-  const data = await response.json();
-  const config = readShopifyAppToml();
-  const appUrl = config.application_url;
-  console.log(appUrl, '_____________2_________');
-  
-  let scopes =
-    "read_content,read_files,read_products,read_script_tags,read_themes,write_content,write_files,write_products,write_script_tags,write_themes";
-  let url = `https://${shopInfo.data[0].myshopify_domain}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=${appUrl}/api/auth/callback`;
-  console.log(url, '_____________3_________'); */
- /*  await fetch(url, {
-    "credentials": "include",
-    "method": "GET",
-    "mode": "cors"
-}).then((response) => {
-  response.json();
-  console.log(response, '_____________4_________');
-}).then((data) => {
-  console.log(data, '_____________5_________');
-}); */
   let shopId: string;
   let ocambaHoodSettings: settingsObject | null;
 
@@ -153,8 +108,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   let shopId: string;
   if (shopInfo.data[0].id) {
-    console.log(shopInfo);
-
     shopId = shopInfo.data[0].id.toString();
 
     await db.settings
@@ -175,7 +128,7 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       })
       .then(async () => {
-        let message = "Tag succesfuly inputed to DB";
+        let message = "Tag succesfuly inputed to DB.";
         ocambaHoodSettings["message"] = message;
 
         await admin
@@ -198,8 +151,8 @@ export async function action({ request }: ActionFunctionArgs) {
               variables: {
                 definition: {
                   name: "Tag",
-                  namespace: "analytics",
-                  key: "tag",
+                  namespace: "analytics4",
+                  key: "tag4",
                   description: "Ocamba Hood Tag",
                   type: "single_line_text_field",
                   ownerType: "SHOP",
@@ -208,10 +161,13 @@ export async function action({ request }: ActionFunctionArgs) {
             },
           )
           .then((response) => response.json())
-          .then(async (data) => {
+          .then(async () => {
+            let message = "Metafiled defintion succesfuly created.";
+            ocambaHoodSettings["message"] += message;
+
             await admin
               .graphql(
-                `#graphql
+                `#graphql 
                 mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
                   metafieldsSet(metafields: $metafields) {
                     metafields {
@@ -232,8 +188,8 @@ export async function action({ request }: ActionFunctionArgs) {
                   variables: {
                     metafields: [
                       {
-                        key: "tag",
-                        namespace: "analytics",
+                        key: "tag4",
+                        namespace: "analytics4",
                         ownerId: "gid://shopify/Shop/" + shopId,
                         type: "single_line_text_field",
                         value: ocambaHoodSettings.tag,
@@ -243,32 +199,60 @@ export async function action({ request }: ActionFunctionArgs) {
                 },
               )
               .then((response) => response.json())
-              .then((data) => {
-                admin.rest.resources.Theme.all({
+              .then(async (data) => {
+                let message = "Metafiled key data setted.";
+                ocambaHoodSettings["message"] += message;
+
+                await admin.rest.resources.Theme.all({
                   session: session,
-                }).then((response) => {
-                  response.data.forEach(async (theme) => {
-                    if (theme.role === "main") {
-                      const asset = new admin.rest.resources.Asset({
-                        session: session,
-                      });
-                      console.log(asset, theme, session, "657433");
+                })
+                  .then(async (response) => {
+                    console.log(response, "22222222222222333333333333");
 
-                      asset.theme_id = theme.id;
+                    response.data.forEach(async (theme) => {
+                      let message =
+                        "Krmacetina zivotinja je uspjesno kreirana.";
+                      ocambaHoodSettings["message"] += message;
+                      if (theme.role === "main") {
+                        try {
+                          let message0 =
+                            "Krmacetina zivotinja je uspjesno kreirana. mainaca";
+                          ocambaHoodSettings["message"] += message0;
+                          const asset = new admin.rest.resources.Asset({
+                            session: session,
+                          });
+                           console.log(asset, theme, session, "657433");
+                          console.log(161026277680, theme.id, theme.id === 161026277680);
+                          
+                          asset.theme_id = theme.id;
 
-                      asset.key = "assets/sw.js";
-                      asset.value = 'importScripts("https://cdn.ocmhood.com/sdk/osw.js");';
-                      console.log(asset);
-                      try {
-                        await asset.save({
-                          update: true,
-                        });
-                        console.log("gone ok");
-                      } catch (error) {
-                        console.log("gone bad", error);
+                          asset.key = 'assets/sw.js';
+                          asset.value = 'importScripts("https://cdn.ocmhood.com/sdk/osw.js");';
+                          console.log(asset);
+                          
+                          let seper = await asset.save({
+                            update: true,
+                          })
+                          console.log("gone ok", seper);
+                          let message = ", Sw.js succesfuly created.";
+                          ocambaHoodSettings["message"] += message;
+                        } catch (error) {
+                          console.log("gone bad", error);
+                          let message = ", Sw.js not created.";
+                          ocambaHoodSettings["message"] += message;
+                        }
                       }
-                    }
+                    });
+                  })
+                  .catch((error) => {
+                    return json({
+                      message: "Could not create theme asset sw.js",
+                    });
                   });
+              })
+              .catch((error) => {
+                return json({
+                  message: "Could not create metafield",
                 });
               });
           })
@@ -284,12 +268,8 @@ export async function action({ request }: ActionFunctionArgs) {
         });
       });
 
-    return json(ocambaHoodSettings) ?? null;
+    return json(ocambaHoodSettings);
   }
-
-
-
-  return json(ocambaHoodSettings) ?? null;
 }
 
 function fetchData(url: string) {
@@ -304,9 +284,7 @@ function fetchData(url: string) {
   });
 }
 
-let validationMesage: {
-  message: string;
-} = { message: "" };
+let validationMesage: validationMesageType = { message: "" };
 
 class TagNotValid extends Error {
   constructor(message: string) {
@@ -328,19 +306,10 @@ class TagTooShortOrTooLong extends Error {
 }
 
 export default function SettingsPage() {
-  const ocambaHoodSettings: any = useLoaderData<typeof loader>();
-  const ocambaHoodSettings2: any = useActionData<typeof action>();
+  const loaderData: any = useLoaderData<typeof loader>();
+  const actionData: any = useActionData<typeof action>();
 
-  const [formState, setFormState] =
-    useState<settingsObject>(ocambaHoodSettings);
-
-  const [toastProps, setToastProps] = useState<string>(
-    validationMesage.message,
-  );
-
-  useEffect(() => {
-    setToastProps(validationMesage.message);
-  }, [validationMesage.message]);
+  const [formState, setFormState] = useState<settingsObject>(loaderData);
 
   return (
     <Page>
@@ -388,7 +357,7 @@ export default function SettingsPage() {
                   Save
                 </Button>
               </BlockStack>
-              <div id="settingsPageToast">{ocambaHoodSettings2?.message}</div>
+              <div id="settingsPageToast">{actionData?.message}</div>
             </Form>
           </Card>
         </InlineGrid>

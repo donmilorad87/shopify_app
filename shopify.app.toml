@@ -3,7 +3,7 @@
 client_id = "6ddda1133d2a189b419263862ab1b4d0"
 name = "Ocamba Hood"
 handle = "ocamba-hood"
-application_url = "https://scotland-focusing-trends-amplifier.trycloudflare.com"
+application_url = "https://sun-bias-elements-able.trycloudflare.com"
 embedded = true
 
 [build]
@@ -11,15 +11,18 @@ automatically_update_urls_on_dev = true
 dev_store_url = "bs-hq-store.myshopify.com"
 include_config_on_deploy = true
 
+[access.admin]
+direct_api_mode = "online"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_content,read_files,read_products,read_script_tags,read_themes,write_content,write_files,write_products,write_script_tags,write_themes"
 
 [auth]
 redirect_urls = [
-  "https://scotland-focusing-trends-amplifier.trycloudflare.com/auth/callback",
-  "https://scotland-focusing-trends-amplifier.trycloudflare.com/auth/shopify/callback",
-  "https://scotland-focusing-trends-amplifier.trycloudflare.com/api/auth/callback"
+  "https://sun-bias-elements-able.trycloudflare.com/auth/callback",
+  "https://sun-bias-elements-able.trycloudflare.com/auth/shopify/callback",
+  "https://sun-bias-elements-able.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
