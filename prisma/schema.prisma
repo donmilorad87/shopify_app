@@ -35,4 +35,5 @@ model Settings {
   id            String    @id
   tag           String
   active        Boolean
+  swAddress     String?
 }

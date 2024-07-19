@@ -7,7 +7,8 @@ import {
   InlineGrid,
   TextField,
   Checkbox,
-  Button
+  Button,
+  Tooltip,
 } from "@shopify/polaris";
 
 import { TitleBar } from "@shopify/app-bridge-react";
@@ -26,6 +27,7 @@ type settingsObject = {
   tag: string;
   active: boolean;
   message?: string;
+  swAddress?: string;
 };
 
 type validationMesageType = {
@@ -108,30 +110,12 @@ export async function action({ request }: ActionFunctionArgs) {
   if (shopInfo.data[0].id) {
     shopId = shopInfo.data[0].id.toString();
 
-    await db.settings
-      .upsert({
-        where: {
-          id: shopId,
-        },
+    let message = "Tag succesfuly inputed to DB.";
+    ocambaHoodSettings["message"] = message;
 
-        update: {
-          id: shopId,
-          tag: ocambaHoodSettings.tag,
-          active: ocambaHoodSettings.active === "true" ? true : false,
-        },
-        create: {
-          id: shopId,
-          tag: ocambaHoodSettings.tag,
-          active: ocambaHoodSettings.active === "true" ? true : false,
-        },
-      })
-      .then(async () => {
-        let message = "Tag succesfuly inputed to DB.";
-        ocambaHoodSettings["message"] = message;
-
-        await admin
-          .graphql(
-            `#graphql
+    await admin
+      .graphql(
+        `#graphql
               mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
                 metafieldDefinitionCreate(definition: $definition) {
                   createdDefinition {
@@ -145,27 +129,27 @@ export async function action({ request }: ActionFunctionArgs) {
                   }
                 }
               }`,
-            {
-              variables: {
-                definition: {
-                  name: "Tag",
-                  namespace: "analytics4",
-                  key: "tag4",
-                  description: "Ocamba Hood Tag",
-                  type: "single_line_text_field",
-                  ownerType: "SHOP",
-                },
-              },
+        {
+          variables: {
+            definition: {
+              name: "Tag",
+              namespace: "analytics",
+              key: "tag",
+              description: "Ocamba Hood Tag",
+              type: "single_line_text_field",
+              ownerType: "SHOP",
             },
-          )
-          .then((response) => response.json())
-          .then(async () => {
-            let message = "Metafiled defintion succesfuly created.";
-            ocambaHoodSettings["message"] += message;
+          },
+        },
+      )
+      .then((response) => response.json())
+      .then(async () => {
+        let message = "Metafiled defintion succesfuly created.";
+        ocambaHoodSettings["message"] += message;
 
-            await admin
-              .graphql(
-                `#graphql 
+        await admin
+          .graphql(
+            `#graphql 
                 mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
                   metafieldsSet(metafields: $metafields) {
                     metafields {
@@ -182,40 +166,91 @@ export async function action({ request }: ActionFunctionArgs) {
                     }
                   }
                 }`,
-                {
-                  variables: {
-                    metafields: [
-                      {
-                        key: "tag4",
-                        namespace: "analytics4",
-                        ownerId: "gid://shopify/Shop/" + shopId,
-                        type: "single_line_text_field",
-                        value: ocambaHoodSettings.tag,
-                      },
-                    ],
+            {
+              variables: {
+                metafields: [
+                  {
+                    key: "tag",
+                    namespace: "analytics",
+                    ownerId: "gid://shopify/Shop/" + shopId,
+                    type: "single_line_text_field",
+                    value: ocambaHoodSettings.tag,
                   },
-                },
-              )
-              .then((response) => response.json())
-              .then(async (data) => {
-                let message = "Metafiled key data setted.";
-                ocambaHoodSettings["message"] += message;
+                ],
+              },
+            },
+          )
+          .then((response) => response.json())
+          .then(async (data) => {
+            let message = "Metafiled key data setted.";
+            ocambaHoodSettings["message"] += message;
 
-                await admin.rest.resources.Theme.all({
-                  session: session,
-                })
-                  .then(async (response) => {
-                    console.log(response, "22222222222222333333333333");
+            await admin.rest.resources.Theme.all({
+              session: session,
+            })
+              .then(async (response) => {
+                response.data.forEach(async (theme) => {
+                  if (theme.role === "main") {
+                    await admin.rest.resources.Asset.all({
+                      session: session,
+                      theme_id: theme.id,
+                    }).then((response) => {
+                      console.log(response, "assets");
+                      response.data.forEach(async (asset) => {
+                        if (asset.key === "assets/sw.js") {
+                          console.log(asset.public_url);
 
-                    response.data.forEach(async (theme) => {
-                      let message =
-                        "Krmacetina zivotinja je uspjesno kreirana.";
-                      ocambaHoodSettings["message"] += message;
-                      if (theme.role === "main") {
-                        try {
-                          let message0 =
-                            "Krmacetina zivotinja je uspjesno kreirana. mainaca";
-                          ocambaHoodSettings["message"] += message0;
+                          // Find the index of the substring '/t/l'
+                          if (asset.public_url) {
+                            let index = asset.public_url.indexOf("/t/1");
+
+                            // Extract the part of the string after '/t/l'
+                            let afterTL = (
+                              "/cdn/shop" + asset.public_url.substring(index)
+                            ).split("?")[0];
+
+                            console.log(afterTL.split("?")[0]);
+
+                            await db.settings
+                              .upsert({
+                                where: {
+                                  id: shopId,
+                                },
+                                update: {
+                                  id: shopId,
+                                  tag: ocambaHoodSettings.tag,
+                                  active:
+                                    ocambaHoodSettings.active === "true"
+                                      ? true
+                                      : false,
+                                  swAddress: afterTL,
+                                },
+                                create: {
+                                  id: shopId,
+                                  tag: ocambaHoodSettings.tag,
+                                  active:
+                                    ocambaHoodSettings.active === "true"
+                                      ? true
+                                      : false,
+                                  swAddress: afterTL,
+                                },
+                              })
+                              .then(async () => {
+                                let message = "Tag succesfuly inputed to DB.2";
+                                ocambaHoodSettings["message"] += message;
+                              })
+                              .catch((error) => {
+                                return json({
+                                  message: "Tag could not be inputed to DB",
+                                });
+                              });
+                          }
+                        }
+                      });
+                    });
+
+                    /* try {
+                       
                           const asset = new admin.rest.resources.Asset({
                             session: session,
                           });
@@ -238,31 +273,25 @@ export async function action({ request }: ActionFunctionArgs) {
                           console.log("gone bad", error);
                           let message = ", Sw.js not created.";
                           ocambaHoodSettings["message"] += message;
-                        }
-                      }
-                    });
-                  })
-                  .catch((error) => {
-                    return json({
-                      message: "Could not create theme asset sw.js",
-                    });
-                  });
+                        } */
+                  }
+                });
               })
               .catch((error) => {
                 return json({
-                  message: "Could not create metafield",
+                  message: "Could not create theme asset sw.js",
                 });
               });
           })
           .catch((error) => {
             return json({
-              message: "Could not create metafild definition",
+              message: "Could not create metafield",
             });
           });
       })
       .catch((error) => {
         return json({
-          message: "Tag could not be inputed to DB",
+          message: "Could not create metafild definition",
         });
       });
 
@@ -348,6 +377,18 @@ export default function SettingsPage() {
                     setFormState({ ...formState, active: value })
                   }
                 />
+                <Tooltip active content="This order has shipping labels.">
+                  <Text fontWeight="bold" as="span">
+                    Order #1001
+                  </Text>
+                </Tooltip>
+                <TextField
+                  label=""
+                  value={formState?.swAddress}
+                  disabled
+                  autoComplete="off"
+                />
+
                 <Button
                   submit={true}
                   disabled={!formState.active ? true : false}

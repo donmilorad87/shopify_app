@@ -1,0 +1,1 @@
+console.log('extendion Script console log');

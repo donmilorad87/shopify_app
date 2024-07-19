@@ -3,7 +3,7 @@
 client_id = "6ddda1133d2a189b419263862ab1b4d0"
 name = "Ocamba Hood"
 handle = "ocamba-hood"
-application_url = "https://sun-bias-elements-able.trycloudflare.com"
+application_url = "https://grass-exemption-circumstances-expedia.trycloudflare.com"
 embedded = true
 
 [build]
@@ -20,9 +20,9 @@ scopes = "read_content,read_files,read_products,read_script_tags,read_themes,wri
 
 [auth]
 redirect_urls = [
-  "https://sun-bias-elements-able.trycloudflare.com/auth/callback",
-  "https://sun-bias-elements-able.trycloudflare.com/auth/shopify/callback",
-  "https://sun-bias-elements-able.trycloudflare.com/api/auth/callback"
+  "https://grass-exemption-circumstances-expedia.trycloudflare.com/auth/callback",
+  "https://grass-exemption-circumstances-expedia.trycloudflare.com/auth/shopify/callback",
+  "https://grass-exemption-circumstances-expedia.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
